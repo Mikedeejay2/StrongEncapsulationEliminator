@@ -1,6 +1,6 @@
 package com.mikedeejay2.jsee.asm;
 
-import com.mikedeejay2.jsee.unsafe.UnsafeGetter;
+import com.mikedeejay2.jsee.JSEE;
 import com.sun.tools.attach.AgentInitializationException;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.AttachNotSupportedException;
@@ -23,16 +23,18 @@ public class LateBindAttacher {
         throw new UnsupportedOperationException("LateBindAttacher cannot be instantiated");
     }
 
-    public static void attach(Class<? extends ClassFileTransformer> agentClass, String JVMPid, Class<?>... agentClasses)
-        throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
-        final File jarFile = createTempFile();
-        generateJar(agentClass, agentClasses, jarFile);
-        setAllowAttachSelf(true);
-        attachJar(JVMPid, jarFile);
+    public static void attach(Class<? extends ClassFileTransformer> agentClass, String JVMPid, Class<?>... agentClasses) {
+        try {
+            final File jarFile = createTempFile();
+            generateJar(agentClass, agentClasses, jarFile);
+            setAllowAttachSelf(true);
+            attachJar(JVMPid, jarFile);
+        } catch(AgentLoadException | IOException | AttachNotSupportedException | AgentInitializationException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void attach(Class<? extends ClassFileTransformer> agentClass, Class<?>... agentClasses)
-        throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
+    public static void attach(Class<? extends ClassFileTransformer> agentClass, Class<?>... agentClasses) {
         attach(agentClass, getPidFromRuntimeBean(), agentClasses);
     }
 
@@ -48,7 +50,7 @@ public class LateBindAttacher {
         Object aasBase = null;
         long aasOffset = 0;
         try {
-            Unsafe unsafe = UnsafeGetter.getUnsafe();
+            Unsafe unsafe = JSEE.getUnsafe();
             Class<?> hsvmClass = Class.forName("sun.tools.attach.HotSpotVirtualMachine");
             Field aasField = hsvmClass.getDeclaredField("ALLOW_ATTACH_SELF");
             aasBase = unsafe.staticFieldBase(aasField);
@@ -65,7 +67,7 @@ public class LateBindAttacher {
     public static void setAllowAttachSelf(boolean value) {
         String valueStr = String.valueOf(value);
         if(System.getProperty("jdk.attach.allowAttachSelf").equals(valueStr)) return;
-        UnsafeGetter.getUnsafe().putBoolean(AAS_BASE, AAS_OFFSET, value);
+        JSEE.getUnsafe().putBoolean(AAS_BASE, AAS_OFFSET, value);
         System.setProperty("jdk.attach.allowAttachSelf", valueStr);
     }
 
