@@ -66,7 +66,7 @@ public class LateBindAttacher {
     // -Djdk.attach.allowAttachSelf=true
     public static void setAllowAttachSelf(boolean value) {
         String valueStr = String.valueOf(value);
-        if(System.getProperty("jdk.attach.allowAttachSelf").equals(valueStr)) return;
+        if(valueStr.equals(System.getProperty("jdk.attach.allowAttachSelf"))) return;
         JSEE.getUnsafe().putBoolean(AAS_BASE, AAS_OFFSET, value);
         System.setProperty("jdk.attach.allowAttachSelf", valueStr);
     }

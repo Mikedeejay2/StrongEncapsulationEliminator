@@ -1,12 +1,13 @@
 package com.mikedeejay2.jseetests;
 
 import com.mikedeejay2.jsee.JSEE;
+import com.mikedeejay2.jsee.security.ModuleSecurity;
 
 import java.lang.reflect.Field;
 
 public class JSEETester {
     public static void main(String[] args) {
-        JSEE.setEnabled(true);
+        ModuleSecurity.attachManipulator();
         System.out.println("Enabled JSEE");
 
         try {

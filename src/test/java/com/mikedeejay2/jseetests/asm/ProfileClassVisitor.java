@@ -5,7 +5,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class ProfileClassVisitor extends ClassVisitor {
-    private String className;
+    private final String className;
 
     public ProfileClassVisitor(ClassVisitor visitor, String theClass) {
         super(Opcodes.ASM4, visitor);

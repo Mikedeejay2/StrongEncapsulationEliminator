@@ -4,10 +4,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class ProfileMethodVisitor extends MethodVisitor {
-    private String _className, _methodName;
+    private final String _className;
+    private final String _methodName;
 
     public ProfileMethodVisitor(MethodVisitor visitor, String className, String methodName) {
-        super(Opcodes.ASM4, visitor);
+        super(Opcodes.ASM9, visitor);
 
         _className = className;
         _methodName = methodName;
