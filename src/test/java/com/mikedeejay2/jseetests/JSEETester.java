@@ -1,4 +1,6 @@
-package com.mikedeejay2.jsee;
+package com.mikedeejay2.jseetests;
+
+import com.mikedeejay2.jsee.JSEE;
 
 import java.lang.reflect.Field;
 

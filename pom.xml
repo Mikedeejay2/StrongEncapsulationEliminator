@@ -13,4 +13,106 @@
         <maven.compiler.target>9</maven.compiler.target>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.2</version>
+        </dependency>
+        <!-- If you are attempting to build this plugin you must locate your tools.jar and place it in the -->
+        <!-- libs folder of this project! This jar is used for attaching ASM to the Java runtime. -->
+<!--        <dependency>-->
+<!--            <groupId>com.sun</groupId>-->
+<!--            <artifactId>tools</artifactId>-->
+<!--            <version>1.7.0_75</version>-->
+<!--        </dependency>-->
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
+            </plugin>
+            <!-- Install tools.jar to local repository before compilation. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>add-sun-tools</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <file>${project.basedir}/libs/tools.jar</file>
+                            <groupId>com.sun</groupId>
+                            <artifactId>tools</artifactId>
+                            <version>1.7.0_75</version>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.name}-${project.version}</finalName>
+                            <filters>
+                                <filter>
+                                    <artifact>com.sun:tools</artifact>
+                                    <includes>
+                                        <include>com/sun/tools/attach/**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+<!--                                <relocation>-->
+<!--                                    <pattern>com.mikedeejay2.mikedeejay2lib</pattern>-->
+<!--                                    <shadedPattern>${project.groupId}.${project.artifactId}.internal.mikedeejay2lib</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>org.bstats</pattern>-->
+<!--                                    <shadedPattern>${project.groupId}.${project.artifactId}.internal.bstats</shadedPattern>-->
+<!--                                </relocation>-->
+                            </relocations>
+                            <minimizeJar>true</minimizeJar>
+                            <outputFile>${serverDirectory}</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>
