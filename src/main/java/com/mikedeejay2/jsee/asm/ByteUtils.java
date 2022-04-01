@@ -28,6 +28,8 @@ public final class ByteUtils {
     }
 
     public static byte[] getBytesFromClass(Class<?> clazz) {
-        return getBytesFromIS(clazz.getClassLoader().getResourceAsStream(clazz.getName().replace('.', '/') + ".class"));
+        ClassLoader loader = clazz.getClassLoader();
+        if(loader == null) loader = ClassLoader.getSystemClassLoader().getParent();
+        return getBytesFromIS(loader.getResourceAsStream(clazz.getName().replace('.', '/') + ".class"));
     }
 }
