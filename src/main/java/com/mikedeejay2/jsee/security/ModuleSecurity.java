@@ -1,7 +1,6 @@
 package com.mikedeejay2.jsee.security;
 
 import com.mikedeejay2.jsee.asm.AgentInfo;
-import com.mikedeejay2.jsee.asm.ByteUtils;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
 import org.objectweb.asm.*;
 
@@ -14,25 +13,12 @@ public final class ModuleSecurity {
     public static void attachManipulator() {
         LateBindAttacher.attach(
             new AgentInfo()
-                .addTransformers(new ModuleAgent())
+                .addTransformers(new ModuleTransformer())
                 .addClassesToRedefine(Module.class)
-                .addAgentClasses(ModuleAgent.class));
+                .addAgentClasses(ModuleTransformer.class));
     }
 
-    private static class ModuleAgent implements ClassFileTransformer {
-
-        public static void agentmain(String args, Instrumentation instrumentation) {
-            instrumentation.addTransformer(new ModuleAgent());
-
-            Class<?> toRedefine = Module.class;
-            try {
-                instrumentation.redefineClasses(new ClassDefinition(toRedefine, ByteUtils.getBytesFromClass(toRedefine)));
-            } catch(UnmodifiableClassException | ClassNotFoundException | VerifyError e) {
-                System.err.printf("Failed redefine for class %s%n", toRedefine.getName());
-                e.printStackTrace();
-            }
-        }
-
+    private static class ModuleTransformer implements ClassFileTransformer {
         @Override
         public byte[] transform(
             ClassLoader loader, String className, Class<?> classBeingRedefined,

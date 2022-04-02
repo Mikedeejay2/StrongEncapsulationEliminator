@@ -1,6 +1,5 @@
 package com.mikedeejay2.jseetests.asm;
 
-import com.mikedeejay2.jsee.asm.ByteUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -8,27 +7,7 @@ import org.objectweb.asm.ClassWriter;
 import java.lang.instrument.*;
 import java.security.ProtectionDomain;
 
-public class JSEEAgent implements ClassFileTransformer {
-    private static Instrumentation instrumentation = null;
-    private static JSEEAgent transformer;
-
-    public static void agentmain(String s, Instrumentation i) {
-        System.out.println("Agent loaded!");
-
-        // Initialization code
-        transformer = new JSEEAgent();
-        instrumentation = i;
-        instrumentation.addTransformer(transformer);
-
-        // To instrument, first revert all added bytecode
-        // Call retransformClasses() on all modifiable methods
-        try {
-            instrumentation.redefineClasses(new ClassDefinition(ASMTest.class, ByteUtils.getBytesFromClass(ASMTest.class)));
-        } catch(UnmodifiableClassException | ClassNotFoundException | VerifyError e) {
-            System.err.println("Failed to redefine class!");
-            e.printStackTrace();
-        }
-    }
+public class JSEEClassTransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(
