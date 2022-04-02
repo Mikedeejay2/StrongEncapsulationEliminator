@@ -1,5 +1,6 @@
 package com.mikedeejay2.jsee.security;
 
+import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.ByteUtils;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
 import org.objectweb.asm.*;
@@ -8,37 +9,26 @@ import java.lang.instrument.*;
 import java.security.ProtectionDomain;
 
 public final class ModuleSecurity {
-    private static boolean bypass = true;
+    private static boolean transformed = false;
 
     public static void attachManipulator() {
         LateBindAttacher.attach(
-            ModuleAgent.class,
-            ModuleAgent.class,
-            LateBindAttacher.class,
-            ModuleClassVisitor.class,
-            ModuleMethodVisitor.class);
-    }
-
-    public boolean shouldBypass() {
-        if(bypass) {
-            return true;
-        }
-        return false;
+            new AgentInfo()
+                .addTransformers(new ModuleAgent())
+                .addClassesToRedefine(Module.class)
+                .addAgentClasses(ModuleAgent.class));
     }
 
     private static class ModuleAgent implements ClassFileTransformer {
-        private static Instrumentation instrumentation = null;
-        private static ModuleAgent transformer;
 
-        public static void agentmain(String s, Instrumentation i) {
-            transformer = new ModuleAgent();
-            instrumentation = i;
-            instrumentation.addTransformer(transformer);
+        public static void agentmain(String args, Instrumentation instrumentation) {
+            instrumentation.addTransformer(new ModuleAgent());
 
+            Class<?> toRedefine = Module.class;
             try {
-                instrumentation.redefineClasses(new ClassDefinition(Module.class, ByteUtils.getBytesFromClass(Module.class)));
+                instrumentation.redefineClasses(new ClassDefinition(toRedefine, ByteUtils.getBytesFromClass(toRedefine)));
             } catch(UnmodifiableClassException | ClassNotFoundException | VerifyError e) {
-                System.err.println("Failed to redefine class!");
+                System.err.printf("Failed redefine for class %s%n", toRedefine.getName());
                 e.printStackTrace();
             }
         }
@@ -55,9 +45,11 @@ public final class ModuleSecurity {
                 ClassReader reader = new ClassReader(classFileBuffer);
                 // Make writer
                 ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                ClassVisitor visitor = new ModuleClassVisitor(writer, className);
+                ClassVisitor visitor = writer;
+                visitor = new OpenClassVisitor(visitor, className);
+
                 // Add the class adapter as a modifier
-                reader.accept(visitor, 0); //true
+                reader.accept(visitor, 0);
                 result = writer.toByteArray();
             } catch(Exception e) {
                 e.printStackTrace();
@@ -68,46 +60,31 @@ public final class ModuleSecurity {
 
     }
 
-    private static class ModuleClassVisitor extends ClassVisitor {
-        private final String className;
+    private static class OpenClassVisitor extends ClassVisitor {
+        private final String clazz;
 
-        public ModuleClassVisitor(ClassVisitor visitor, String theClass) {
+        public OpenClassVisitor(ClassVisitor visitor, String theClass) {
             super(Opcodes.ASM9, visitor);
-            this.className = theClass;
+            this.clazz = theClass;
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            if(!name.equals("implIsExportedOrOpen")) {
+                return super.visitMethod(access, name, desc, signature, exceptions);
+            }
+
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
-            return new ModuleMethodVisitor(mv, className, name);
-        }
-    }
-
-    private static class ModuleMethodVisitor extends MethodVisitor {
-        private final String _className;
-        private final String _methodName;
-
-        public ModuleMethodVisitor(MethodVisitor visitor, String className, String methodName) {
-            super(Opcodes.ASM9, visitor);
-
-            _className = className;
-            _methodName = methodName;
-        }
-
-        @Override
-        public void visitCode() {
-            this.visitLdcInsn(_className);
-            this.visitLdcInsn(_methodName);
-            this.visitInsn(Opcodes.ICONST_1);
-            this.visitInsn(Opcodes.IRETURN);
-//            this.visitMethodInsn(
-//                Opcodes.INVOKESTATIC,
-//                "com/mikedeejay2/jsee/security/ModuleSecurity",
-//                "start",
-//                "(Ljava/lang/String;Ljava/lang/String;)V",
-//                false);
-            super.visitCode();
+            return new MethodVisitor(Opcodes.ASM9, mv) {
+                @Override
+                public void visitCode() {
+                    this.visitInsn(Opcodes.ICONST_1);
+                    this.visitInsn(Opcodes.IRETURN);
+                    super.visitCode();
+                    ModuleSecurity.transformed = true;
+                }
+            };
         }
     }
 }

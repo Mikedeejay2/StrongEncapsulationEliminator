@@ -10,32 +10,63 @@ import sun.misc.Unsafe;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 public class LateBindAttacher {
+    public static final Class<?> AGENT_MAIN_CLASS = LateBindAttacher.class;
+    private static final Map<UUID, AgentInfo> infoMap = new HashMap<>();
+
     private LateBindAttacher() {
         throw new UnsupportedOperationException("LateBindAttacher cannot be instantiated");
     }
 
-    public static void attach(Class<? extends ClassFileTransformer> agentClass, String JVMPid, Class<?>... agentClasses) {
-        try {
-            final File jarFile = createTempFile();
-            generateJar(agentClass, agentClasses, jarFile);
-            setAllowAttachSelf(true);
-            attachJar(JVMPid, jarFile);
-        } catch(AgentLoadException | IOException | AttachNotSupportedException | AgentInitializationException e) {
-            e.printStackTrace();
+    public static void agentmain(String args, Instrumentation instrumentation) {
+        UUID uuid = UUID.fromString(args);
+        AgentInfo info = infoMap.get(uuid);
+        if(info == null) {
+            System.err.println("AgentInfo not found for " + uuid.toString());
+            return;
+        }
+        for(ClassFileTransformer transformer : info.getTransformers()) {
+            instrumentation.addTransformer(transformer);
+        }
+
+        for(Class<?> toRedefine : info.getClassesToRedefine()) {
+            try {
+                instrumentation.redefineClasses(new ClassDefinition(toRedefine, ByteUtils.getBytesFromClass(toRedefine)));
+            } catch(UnmodifiableClassException | ClassNotFoundException | VerifyError e) {
+                System.err.printf("Failed redefine for class %s%n", toRedefine.getName());
+                e.printStackTrace();
+            }
         }
     }
 
-    public static void attach(Class<? extends ClassFileTransformer> agentClass, Class<?>... agentClasses) {
-        attach(agentClass, getPidFromRuntimeBean(), agentClasses);
+
+
+    public static void attach(AgentInfo info) {
+        try {
+            final File jarFile = createTempFile();
+            generateJar(AGENT_MAIN_CLASS, info.getAgentClasses(), jarFile);
+            setAllowAttachSelf(true);
+            UUID uuid = UUID.randomUUID();
+            infoMap.put(uuid, info);
+            attachJar(info.getJVMPid(), jarFile, uuid);
+        } catch(AgentLoadException | IOException | AttachNotSupportedException | AgentInitializationException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getPidFromRuntimeBean() {
@@ -74,14 +105,14 @@ public class LateBindAttacher {
 
 
 
-    private static void attachJar(String JVMPid, File jarFile)
+    private static void attachJar(String JVMPid, File jarFile, UUID uuid)
         throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException {
         VirtualMachine vm = VirtualMachine.attach(JVMPid);
-        vm.loadAgent(jarFile.getAbsolutePath());
+        vm.loadAgent(jarFile.getAbsolutePath(), uuid.toString());
         vm.detach();
     }
 
-    private static void generateJar(Class<? extends ClassFileTransformer> agentClass, Class<?>[] agentClasses, File jarFile) throws IOException {
+    private static void generateJar(Class<?> agentClass, List<Class<?>> agentClasses, File jarFile) throws IOException {
         final Manifest manifest = new Manifest();
         final Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");

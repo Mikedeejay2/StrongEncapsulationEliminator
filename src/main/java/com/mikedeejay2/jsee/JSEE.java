@@ -1,5 +1,6 @@
 package com.mikedeejay2.jsee;
 
+import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
 import com.mikedeejay2.jsee.unsafe.UnsafeGetter;
 import com.sun.tools.attach.AgentInitializationException;
@@ -17,11 +18,7 @@ public final class JSEE {
         return UnsafeGetter.getUnsafe();
     }
 
-    public static void attachASM(Class<? extends ClassFileTransformer> agentClass, Class<?>... agentClasses) {
-        LateBindAttacher.attach(agentClass, agentClasses);
-    }
-
-    public static void attachASM(Class<? extends ClassFileTransformer> agentClass, String JVMPid, Class<?>... agentClasses) {
-        LateBindAttacher.attach(agentClass, JVMPid, agentClasses);
+    public static void attachASM(AgentInfo info) {
+        LateBindAttacher.attach(info);
     }
 }

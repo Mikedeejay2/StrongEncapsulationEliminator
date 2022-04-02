@@ -1,6 +1,5 @@
 package com.mikedeejay2.jseetests;
 
-import com.mikedeejay2.jsee.JSEE;
 import com.mikedeejay2.jsee.security.ModuleSecurity;
 
 import java.lang.reflect.Field;
@@ -13,7 +12,8 @@ public class JSEETester {
         try {
             Class<?> testClass = Class.class;
             Field field = testClass.getDeclaredField("module");
-            field.setAccessible(true);
+            field.setAccessible(true); // Would usually throw InaccessibleObjectException
+            field.set(testClass, JSEETester.class.getModule());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
