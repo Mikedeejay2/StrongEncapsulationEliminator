@@ -2,8 +2,12 @@ package com.mikedeejay2.jseetests.asm;
 
 import com.mikedeejay2.jsee.JSEE;
 import com.mikedeejay2.jsee.asm.AgentInfo;
+import org.junit.jupiter.api.Test;
 
-public class ASMTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestASMAttach {
+    @Test
     public static void main(String[] args) {
         JSEE.attachASM(
             new AgentInfo()
@@ -13,7 +17,7 @@ public class ASMTest {
                     TestProfile.class,
                     ProfileClassVisitor.class,
                     ProfileMethodVisitor.class)
-                .addClassesToRedefine(ASMTest.class));
+                .addClassesToRedefine(TestASMAttach.class));
 
         sayHello(5);
         sayWorld();
