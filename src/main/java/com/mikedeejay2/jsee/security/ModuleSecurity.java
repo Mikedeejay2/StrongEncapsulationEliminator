@@ -3,6 +3,7 @@ package com.mikedeejay2.jsee.security;
 import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
 import org.objectweb.asm.*;
+import org.objectweb.asm.tree.*;
 
 import java.lang.instrument.*;
 import java.security.ProtectionDomain;
@@ -10,7 +11,7 @@ import java.security.ProtectionDomain;
 public final class ModuleSecurity {
     private static boolean transformed = false;
 
-    public static void attachManipulator() {
+    public static void toggleSecurity() {
         LateBindAttacher.attach(
             new AgentInfo()
                 .addTransformers(new ModuleTransformer())
@@ -19,58 +20,52 @@ public final class ModuleSecurity {
     }
 
     private static class ModuleTransformer implements ClassFileTransformer {
+        private boolean executed = false;
+
         @Override
         public byte[] transform(
             ClassLoader loader, String className, Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+            if(!className.equals("java/lang/Module") || executed) return classFileBuffer;
 
-            byte[] result = classFileBuffer;
+            // Create class reader from buffer
+            ClassReader reader = new ClassReader(classFileBuffer);
+            // Make writer
+            ClassNode classNode = new ClassNode(Opcodes.ASM9);
+            reader.accept(classNode, 0);
 
-            try {
-                // Create class reader from buffer
-                ClassReader reader = new ClassReader(classFileBuffer);
-                // Make writer
-                ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                ClassVisitor visitor = writer;
-                visitor = new OpenClassVisitor(visitor, className);
-
-                // Add the class adapter as a modifier
-                reader.accept(visitor, 0);
-                result = writer.toByteArray();
-            } catch(Exception e) {
-                e.printStackTrace();
+            for(MethodNode methodNode : classNode.methods) {
+                if(!"implIsExportedOrOpen".equals(methodNode.name)) continue;
+                InsnList instructions = methodNode.instructions;
+                if(transformed) {
+                    transformed = false;
+                    for(AbstractInsnNode node : instructions) {
+                        AbstractInsnNode next = node.getNext();
+                        if(node.getOpcode() == Opcodes.ICONST_1 &&
+                            next != null && next.getOpcode() == Opcodes.IRETURN) {
+                            instructions.remove(node);
+                            instructions.remove(next);
+                            break;
+                        }
+                    }
+                } else {
+                    transformed = true;
+                    InsnList list = new InsnList();
+                    list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
+                    list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
+                    instructions.insert(list); // insert list to start of stack
+                }
             }
-            return result;
+
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+            classNode.accept(writer);
+            executed = true;
+
+            return writer.toByteArray();
         }
-
-
     }
 
-    private static class OpenClassVisitor extends ClassVisitor {
-        private final String clazz;
-
-        public OpenClassVisitor(ClassVisitor visitor, String theClass) {
-            super(Opcodes.ASM9, visitor);
-            this.clazz = theClass;
-        }
-
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            if(!name.equals("implIsExportedOrOpen")) {
-                return super.visitMethod(access, name, desc, signature, exceptions);
-            }
-
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
-            return new MethodVisitor(Opcodes.ASM9, mv) {
-                @Override
-                public void visitCode() {
-                    this.visitInsn(Opcodes.ICONST_1);
-                    this.visitInsn(Opcodes.IRETURN);
-                    super.visitCode();
-                    ModuleSecurity.transformed = true;
-                }
-            };
-        }
+    public static boolean isTransformed() {
+        return transformed;
     }
 }
