@@ -1,5 +1,6 @@
 package com.mikedeejay2.jsee.security;
 
+import com.mikedeejay2.jsee.asm.ASMUtil;
 import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
 import org.objectweb.asm.ClassReader;
@@ -29,27 +30,18 @@ public final class ModuleSecurity {
             if(!className.equals("java/lang/Module") || executed) return classFileBuffer;
             if(transformed) return classFileBuffer;
 
-            // Create class reader from buffer
-            ClassReader reader = new ClassReader(classFileBuffer);
-            // Make writer
-            ClassNode classNode = new ClassNode(Opcodes.ASM9);
-            reader.accept(classNode, 0);
-
-            for(MethodNode methodNode : classNode.methods) {
-                if(!"implIsExportedOrOpen".equals(methodNode.name)) continue;
-                InsnList instructions = methodNode.instructions;
-                transformed = true;
-                InsnList list = new InsnList();
-                list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
-                list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
-                instructions.insert(list); // insert list to start of stack
-            }
-
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-            classNode.accept(writer);
-            executed = true;
-
-            return writer.toByteArray();
+            return ASMUtil.operateNode(classFileBuffer, classNode -> {
+                for(MethodNode methodNode : classNode.methods) {
+                    if(!"implIsExportedOrOpen".equals(methodNode.name)) continue;
+                    InsnList instructions = methodNode.instructions;
+                    transformed = true;
+                    InsnList list = new InsnList();
+                    list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
+                    list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
+                    instructions.insert(list); // insert list to start of stack
+                }
+                executed = true;
+            });
         }
     }
 

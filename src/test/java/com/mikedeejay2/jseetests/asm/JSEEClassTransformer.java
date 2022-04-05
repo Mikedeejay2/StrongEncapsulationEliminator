@@ -1,5 +1,6 @@
 package com.mikedeejay2.jseetests.asm;
 
+import com.mikedeejay2.jsee.asm.ASMUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -24,21 +25,6 @@ public class JSEEClassTransformer implements ClassFileTransformer {
             return classFileBuffer;
         }
 
-        byte[] result = classFileBuffer;
-
-        try {
-            // Create class reader from buffer
-            ClassReader reader = new ClassReader(classFileBuffer);
-            // Make writer
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS); // true
-            ClassVisitor profiler = new ProfileClassVisitor(writer, className);
-            // Add the class adapter as a modifier
-            reader.accept(profiler, 0); //true
-            result = writer.toByteArray();
-            System.out.println("Returning reinstrumented class " + className);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+        return ASMUtil.operateVisitor(classFileBuffer, writer -> new ProfileClassVisitor(writer, className));
     }
 }
