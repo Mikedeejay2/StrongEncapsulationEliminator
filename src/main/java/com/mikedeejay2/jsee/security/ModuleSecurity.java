@@ -2,11 +2,14 @@ package com.mikedeejay2.jsee.security;
 
 import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import java.lang.instrument.*;
+import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 
 public final class ModuleSecurity {
     private static boolean transformed = false;
@@ -27,6 +30,7 @@ public final class ModuleSecurity {
             ClassLoader loader, String className, Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
             if(!className.equals("java/lang/Module") || executed) return classFileBuffer;
+            if(transformed) return classFileBuffer;
 
             // Create class reader from buffer
             ClassReader reader = new ClassReader(classFileBuffer);
@@ -37,36 +41,11 @@ public final class ModuleSecurity {
             for(MethodNode methodNode : classNode.methods) {
                 if(!"implIsExportedOrOpen".equals(methodNode.name)) continue;
                 InsnList instructions = methodNode.instructions;
-                if(transformed) {
-                    transformed = false;
-                    for(AbstractInsnNode node : instructions) {
-                        System.out.print(node.getOpcode() + ", ");
-                        AbstractInsnNode next = node.getNext();
-//                        if(node.getOpcode() == Opcodes.ICONST_1 &&
-//                            next != null && next.getOpcode() == Opcodes.IRETURN) {
-//                            instructions.remove(node);
-//                            instructions.remove(next);
-//                            break;
-//                        }
-                    }
-                } else {
-                    transformed = true;
-
-                    for(AbstractInsnNode node : instructions) {
-                        System.out.print(node.getOpcode() + ", ");
-                        AbstractInsnNode next = node.getNext();
-//                        if(node.getOpcode() == Opcodes.ICONST_1 &&
-//                            next != null && next.getOpcode() == Opcodes.IRETURN) {
-//                            instructions.remove(node);
-//                            instructions.remove(next);
-//                            break;
-//                        }
-                    }
-                    InsnList list = new InsnList();
-                    list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
-                    list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
-                    instructions.insert(list); // insert list to start of stack
-                }
+                transformed = true;
+                InsnList list = new InsnList();
+                list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
+                list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
+                instructions.insert(list); // insert list to start of stack
             }
 
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);

@@ -36,9 +36,35 @@ public class AgentInfo {
         return this;
     }
 
+    public AgentInfo addClassesToRedefine(String... classNames) {
+        List<Class<?>> classes = new ArrayList<>();
+        for(String className : classNames) {
+            try {
+                classes.add(Class.forName(className));
+            } catch(ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return addClassesToRedefine(classes.toArray(new Class[0]));
+    }
+
     public AgentInfo addAgentClasses(Class<?>... classes) {
         this.agentClasses.addAll(Arrays.asList(classes));
         return this;
+    }
+
+    public AgentInfo addAgentClasses(String... classNames) {
+        List<Class<?>> classes = new ArrayList<>();
+        for(String className : classNames) {
+            try {
+                classes.add(Class.forName(className));
+            } catch(ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return addAgentClasses(classes.toArray(new Class[0]));
     }
 
     public List<ClassFileTransformer> getTransformers() {
