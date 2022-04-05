@@ -4,12 +4,10 @@ import com.mikedeejay2.jsee.JSEE;
 import com.mikedeejay2.jsee.asm.AgentInfo;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class TestASMAttach {
     @Test
     public void testASMAttach() {
-        JSEE.attachASM(
+        JSEE.attachAgent(
             new AgentInfo()
                 .addTransformers(new JSEEClassTransformer())
                 .addAgentClasses(
