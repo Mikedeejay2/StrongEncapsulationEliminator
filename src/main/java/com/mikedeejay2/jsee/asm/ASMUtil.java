@@ -5,6 +5,8 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -41,5 +43,31 @@ public class ASMUtil {
 
     public static byte[] operateVisitor(byte[] classFileBuffer, Function<ClassVisitor, ClassVisitor> consumer) {
         return operateVisitor(classFileBuffer, consumer, ClassWriter.COMPUTE_MAXS);
+    }
+
+    public static MethodNode getMethodNode(ClassNode node, String name, String signature) {
+        for(MethodNode mNode : node.methods) {
+            if(!name.equals(mNode.name)) continue;
+            if(signature != null && !mNode.signature.equals(signature)) continue;
+            return mNode;
+        }
+        return null;
+    }
+
+    public static MethodNode getMethodNode(ClassNode node, String name) {
+        return getMethodNode(node, name, null);
+    }
+
+    public static FieldNode getFieldNode(ClassNode node, String name, String signature) {
+        for(FieldNode fNode : node.fields) {
+            if(!name.equals(fNode.name)) continue;
+            if(signature != null && !fNode.signature.equals(signature)) continue;
+            return fNode;
+        }
+        return null;
+    }
+
+    public static FieldNode getFieldNode(ClassNode node, String name) {
+        return getFieldNode(node, name, null);
     }
 }
