@@ -9,17 +9,14 @@ import org.objectweb.asm.tree.*;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
 
 public final class ModuleSecurity {
     private static boolean transformed = false;
 
     public static void toggleSecurity() {
         LateBindAttacher.attach(
-            new AgentInfo()
-                .addTransformers(new ModuleTransformer())
-                .addClassesToRedefine(Module.class)
-                .addAgentClasses(ModuleTransformer.class));
+            new AgentInfo(new ModuleTransformer())
+                .addClassesToRedefine(Module.class));
     }
 
     private static class ModuleTransformer implements ClassFileTransformer {

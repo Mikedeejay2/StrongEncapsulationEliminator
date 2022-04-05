@@ -16,7 +16,7 @@ public class AgentInfo {
     private Class<?> agentMain;
     private String JVMPid;
 
-    public AgentInfo() {
+    public AgentInfo(ClassFileTransformer transformer) {
         this.transformers = new ArrayList<>();
         this.toRedefineClasses = new ArrayList<>();
         this.agentClasses = new ArrayList<>();
@@ -24,6 +24,14 @@ public class AgentInfo {
         this.JVMPid = LateBindAttacher.getPidFromRuntimeBean();
         this.agentMain = defaultAgent;
         this.additionalArgs = defaultArgs;
+        if(transformer != null) {
+            transformers.add(transformer);
+            agentClasses.add(transformer.getClass());
+        }
+    }
+
+    public AgentInfo() {
+        this(null);
     }
 
     public AgentInfo addTransformers(ClassFileTransformer... transformers) {
