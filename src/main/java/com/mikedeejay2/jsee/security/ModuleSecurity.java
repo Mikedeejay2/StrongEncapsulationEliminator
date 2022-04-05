@@ -40,16 +40,28 @@ public final class ModuleSecurity {
                 if(transformed) {
                     transformed = false;
                     for(AbstractInsnNode node : instructions) {
+                        System.out.print(node.getOpcode() + ", ");
                         AbstractInsnNode next = node.getNext();
-                        if(node.getOpcode() == Opcodes.ICONST_1 &&
-                            next != null && next.getOpcode() == Opcodes.IRETURN) {
-                            instructions.remove(node);
-                            instructions.remove(next);
-                            break;
-                        }
+//                        if(node.getOpcode() == Opcodes.ICONST_1 &&
+//                            next != null && next.getOpcode() == Opcodes.IRETURN) {
+//                            instructions.remove(node);
+//                            instructions.remove(next);
+//                            break;
+//                        }
                     }
                 } else {
                     transformed = true;
+
+                    for(AbstractInsnNode node : instructions) {
+                        System.out.print(node.getOpcode() + ", ");
+                        AbstractInsnNode next = node.getNext();
+//                        if(node.getOpcode() == Opcodes.ICONST_1 &&
+//                            next != null && next.getOpcode() == Opcodes.IRETURN) {
+//                            instructions.remove(node);
+//                            instructions.remove(next);
+//                            break;
+//                        }
+                    }
                     InsnList list = new InsnList();
                     list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
                     list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)

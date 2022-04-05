@@ -10,10 +10,6 @@ import sun.misc.Unsafe;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.instrument.ClassDefinition;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -26,44 +22,20 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 public class LateBindAttacher {
-    public static final Class<?> AGENT_MAIN_CLASS = LateBindAttacher.class;
-    private static final Map<UUID, AgentInfo> infoMap = new HashMap<>();
+    public static final Map<UUID, AgentInfo> INFO_MAP = new HashMap<>();
 
     private LateBindAttacher() {
         throw new UnsupportedOperationException("LateBindAttacher cannot be instantiated");
     }
 
-    public static void agentmain(String args, Instrumentation instrumentation) {
-        UUID uuid = UUID.fromString(args);
-        AgentInfo info = infoMap.get(uuid);
-        if(info == null) {
-            System.err.println("AgentInfo not found for " + uuid.toString());
-            return;
-        }
-        for(ClassFileTransformer transformer : info.getTransformers()) {
-            instrumentation.addTransformer(transformer);
-        }
-
-        for(Class<?> toRedefine : info.getClassesToRedefine()) {
-            try {
-                instrumentation.redefineClasses(new ClassDefinition(toRedefine, ByteUtils.getBytesFromClass(toRedefine)));
-            } catch(UnmodifiableClassException | ClassNotFoundException | VerifyError e) {
-                System.err.printf("Failed redefine for class %s%n", toRedefine.getName());
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-
     public static void attach(AgentInfo info) {
+        UUID uuid = UUID.randomUUID();
         try {
             final File jarFile = createTempFile();
-            generateJar(AGENT_MAIN_CLASS, info.getAgentClasses(), jarFile);
+            generateJar(info.getAgentMain(), info.getAgentClasses(), jarFile);
             setAllowAttachSelf(true);
-            UUID uuid = UUID.randomUUID();
-            infoMap.put(uuid, info);
-            attachJar(info.getJVMPid(), jarFile, uuid);
+            INFO_MAP.put(uuid, info);
+            attachJar(info.getJVMPid(), jarFile, uuid + " " + info.getAdditionalArgs());
         } catch(AgentLoadException | IOException | AttachNotSupportedException | AgentInitializationException e) {
             e.printStackTrace();
         }
@@ -105,10 +77,10 @@ public class LateBindAttacher {
 
 
 
-    private static void attachJar(String JVMPid, File jarFile, UUID uuid)
+    private static void attachJar(String JVMPid, File jarFile, String args)
         throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException {
         VirtualMachine vm = VirtualMachine.attach(JVMPid);
-        vm.loadAgent(jarFile.getAbsolutePath(), uuid.toString());
+        vm.loadAgent(jarFile.getAbsolutePath(), args);
         vm.detach();
     }
 

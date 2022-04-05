@@ -16,7 +16,7 @@ public class JSEEClassTransformer implements ClassFileTransformer {
         throws IllegalClassFormatException {
         System.out.println(classBeingRedefined.getName());
         if(loader != ClassLoader.getSystemClassLoader()) {
-            System.err.printf("%s is not using the system loader, and so cannot be loaded!%n", className);
+            System.err.printf("%s is not using the system loader, and so cannot be loaded.%n", className);
             return classFileBuffer;
         }
         if(className.startsWith("com/mikedeejay2/jseetests/asm/LateBindAttacher")) {

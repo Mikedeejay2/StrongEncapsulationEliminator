@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestASMAttach {
     @Test
-    public static void main(String[] args) {
+    public void testASMAttach() {
         JSEE.attachASM(
             new AgentInfo()
                 .addTransformers(new JSEEClassTransformer())

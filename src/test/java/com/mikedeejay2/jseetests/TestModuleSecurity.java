@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestModuleSecurity {
     @Test
-    public static void main(String[] args) {
+    public void testModuleSecurity() {
         ModuleSecurity.toggleSecurity();
         System.out.println("Disabled module security, all reflection should be possible now");
 
@@ -37,18 +37,18 @@ public class TestModuleSecurity {
         ModuleSecurity.toggleSecurity();
         System.out.println("Re-enabled module security, InaccessibleObjectException should now be thrown");
 
-        try {
-            Class<?> testClass = Class.class;
-            Field field = testClass.getDeclaredField("module");
-            boolean open = testClass.getModule().isOpen(TestModuleSecurity.class.getPackageName());
-            System.out.println("Open? " + open);
-            field.setAccessible(false);
-            field.setAccessible(true); // Will throw InaccessibleObjectException
-            System.out.println("Something failed");
-        } catch(InaccessibleObjectException e) {
-            System.out.println("Successfully disabled");
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Class<?> testClass = Class.class;
+//            Field field = testClass.getDeclaredField("module");
+//            boolean open = testClass.getModule().isOpen(TestModuleSecurity.class.getPackageName());
+//            System.out.println("Open? " + open);
+//            field.setAccessible(false);
+//            field.setAccessible(true); // Will throw InaccessibleObjectException
+//            System.out.println("Something failed");
+//        } catch(InaccessibleObjectException e) {
+//            System.out.println("Successfully disabled");
+//        }catch(Exception e) {
+//            e.printStackTrace();
+//        }
     }
 }

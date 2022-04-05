@@ -6,17 +6,24 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AgentInfo {
+    public static Class<?> defaultAgent = JSEEAgent.class;
+    public static String defaultArgs = "";
+
     private final List<ClassFileTransformer> transformers;
     private final List<Class<?>> toRedefineClasses;
     private final List<Class<?>> agentClasses;
+    private String additionalArgs;
+    private Class<?> agentMain;
     private String JVMPid;
 
     public AgentInfo() {
-        transformers = new ArrayList<>();
-        toRedefineClasses = new ArrayList<>();
-        agentClasses = new ArrayList<>();
-        agentClasses.add(LateBindAttacher.class);
+        this.transformers = new ArrayList<>();
+        this.toRedefineClasses = new ArrayList<>();
+        this.agentClasses = new ArrayList<>();
+        this.agentClasses.add(defaultAgent);
         this.JVMPid = LateBindAttacher.getPidFromRuntimeBean();
+        this.agentMain = defaultAgent;
+        this.additionalArgs = defaultArgs;
     }
 
     public AgentInfo addTransformers(ClassFileTransformer... transformers) {
@@ -52,5 +59,37 @@ public class AgentInfo {
 
     public void setJVMPid(String JVMPid) {
         this.JVMPid = JVMPid;
+    }
+
+    public Class<?> getAgentMain() {
+        return agentMain;
+    }
+
+    public void setAgentMain(Class<?> agentMain) {
+        this.agentMain = agentMain;
+    }
+
+    public String getAdditionalArgs() {
+        return additionalArgs;
+    }
+
+    public void setAdditionalArgs(String additionalArgs) {
+        this.additionalArgs = additionalArgs;
+    }
+
+    public static Class<?> getDefaultAgent() {
+        return defaultAgent;
+    }
+
+    public static void setDefaultAgent(Class<?> defaultAgent) {
+        AgentInfo.defaultAgent = defaultAgent;
+    }
+
+    public static String getDefaultArgs() {
+        return defaultArgs;
+    }
+
+    public static void setDefaultArgs(String defaultArgs) {
+        AgentInfo.defaultArgs = defaultArgs;
     }
 }
