@@ -10,6 +10,10 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
 public final class ModuleSecurity {
+    private ModuleSecurity() {
+        throw new UnsupportedOperationException("ModuleSecurity cannot be instantiated");
+    }
+
     private static boolean transformed = false;
 
     public static void toggleSecurity() {

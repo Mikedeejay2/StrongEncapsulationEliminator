@@ -7,6 +7,10 @@ import com.mikedeejay2.jsee.unsafe.UnsafeGetter;
 import sun.misc.Unsafe;
 
 public final class JSEE {
+    private JSEE() {
+        throw new UnsupportedOperationException("JSEE cannot be instantiated");
+    }
+
     public static Unsafe getUnsafe() {
         return UnsafeGetter.getUnsafe();
     }

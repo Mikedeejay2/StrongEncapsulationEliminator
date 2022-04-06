@@ -11,7 +11,11 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class ASMUtil {
+public final class ASMUtil {
+    private ASMUtil() {
+        throw new UnsupportedOperationException("ASMUtil cannot be instantiated");
+    }
+
     public static byte[] operateNode(byte[] classFileBuffer, Consumer<ClassNode> consumer, int writerOps) {
         ClassReader reader = new ClassReader(classFileBuffer);
         ClassNode classNode = new ClassNode(Opcodes.ASM9);

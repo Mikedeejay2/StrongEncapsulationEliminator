@@ -5,6 +5,10 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 
 public final class UnsafeGetter {
+    private UnsafeGetter() {
+        throw new UnsupportedOperationException("UnsafeGetter cannot be instantiated");
+    }
+
     private final static Unsafe unsafe;
 
     static {
