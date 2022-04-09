@@ -8,13 +8,17 @@ import org.objectweb.asm.tree.*;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ModuleSecurity {
+    /**
+     * Private constructor. Throws <code>UnsupportedOperationException</code>
+     */
     private ModuleSecurity() {
         throw new UnsupportedOperationException("ModuleSecurity cannot be instantiated");
     }
 
-    private static boolean transformed = false;
+    private static final AtomicBoolean transformed = new AtomicBoolean(false);
 
     public static void toggleSecurity() {
         LateBindAttacher.attach(
@@ -30,12 +34,14 @@ public final class ModuleSecurity {
             ClassLoader loader, String className, Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
             if(!className.equals("java/lang/Module") || executed) return classFileBuffer;
-            if(transformed) return classFileBuffer; // return original bytes to remove added instructions
+            if(transformed.compareAndSet(true, false)) {
+                return classFileBuffer; // return original bytes to remove added instructions
+            }
 
             return ASMUtil.operateNode(classFileBuffer, classNode -> {
                 MethodNode methodNode = ASMUtil.getMethodNode(classNode, "implIsExportedOrOpen");
                 InsnList instructions = methodNode.instructions;
-                transformed = true;
+                transformed.compareAndSet(false, true);
                 InsnList list = new InsnList();
                 list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
                 list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
@@ -46,6 +52,6 @@ public final class ModuleSecurity {
     }
 
     public static boolean isTransformed() {
-        return transformed;
+        return transformed.get();
     }
 }
