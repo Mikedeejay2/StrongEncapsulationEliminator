@@ -10,6 +10,15 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Allows for the toggling of Java 9's module system security measures. This allows for reflection upon internal Java
+ * classes and other entries that are generally restricted.
+ * <p>
+ * <o>Th</o>
+ *
+ * @since 1.0.0
+ * @author Mikedeejay2
+ */
 public final class ModuleSecurity {
     /**
      * Private constructor. Throws <code>UnsupportedOperationException</code>
@@ -18,6 +27,9 @@ public final class ModuleSecurity {
         throw new UnsupportedOperationException("ModuleSecurity cannot be instantiated");
     }
 
+    /**
+     * <code>AtomicBoolean</code> which holds whether the {@link Module} class has been transformed to disable security
+     */
     private static final AtomicBoolean transformed = new AtomicBoolean(false);
 
     public static void toggleSecurity() {

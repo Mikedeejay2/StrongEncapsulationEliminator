@@ -7,6 +7,9 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.util.UUID;
 
 public final class JSEEAgent {
+    /**
+     * Private constructor. Throws <code>UnsupportedOperationException</code>
+     */
     private JSEEAgent() {
         throw new UnsupportedOperationException("JSEEAgent cannot be instantiated");
     }

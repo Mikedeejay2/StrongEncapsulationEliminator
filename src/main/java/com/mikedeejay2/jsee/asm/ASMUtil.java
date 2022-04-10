@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class ASMUtil {
+    /**
+     * Private constructor. Throws <code>UnsupportedOperationException</code>
+     */
     private ASMUtil() {
         throw new UnsupportedOperationException("ASMUtil cannot be instantiated");
     }

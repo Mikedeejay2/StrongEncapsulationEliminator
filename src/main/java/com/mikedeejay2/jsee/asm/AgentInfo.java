@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AgentInfo {
+    /**
+     * Private constructor. Throws <code>UnsupportedOperationException</code>
+     */
     public static Class<?> defaultAgent = JSEEAgent.class;
     public static String defaultArgs = "";
 

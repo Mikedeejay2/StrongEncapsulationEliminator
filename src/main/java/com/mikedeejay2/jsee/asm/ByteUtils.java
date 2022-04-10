@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public final class ByteUtils {
+    /**
+     * Private constructor. Throws <code>UnsupportedOperationException</code>
+     */
     private ByteUtils() {
         throw new UnsupportedOperationException("ByteUtils cannot be instantiated");
     }

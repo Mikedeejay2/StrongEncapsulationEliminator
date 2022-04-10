@@ -24,6 +24,9 @@ import java.util.jar.Manifest;
 public class LateBindAttacher {
     public static final Map<UUID, AgentInfo> INFO_MAP = new HashMap<>();
 
+    /**
+     * Private constructor. Throws <code>UnsupportedOperationException</code>
+     */
     private LateBindAttacher() {
         throw new UnsupportedOperationException("LateBindAttacher cannot be instantiated");
     }
