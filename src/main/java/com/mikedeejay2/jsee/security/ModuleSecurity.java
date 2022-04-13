@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Allows for the toggling of Java 9's module system security measures. This allows for reflection upon internal Java
  * classes and other entries that are generally restricted.
  * <p>
- * <o>Th</o>
+ * <strong>This class only functions with Java 9 or higher! Java 8 does not have a reflection security system.</strong>
  *
  * @since 1.0.0
  * @author Mikedeejay2
@@ -32,13 +32,25 @@ public final class ModuleSecurity {
      */
     private static final AtomicBoolean transformed = new AtomicBoolean(false);
 
+    /**
+     * Toggle the security function of modules. Note that this method creates and attaches a new agent to transform
+     * the JVM, so its execution time should be heavily considered.
+     */
     public static void toggleSecurity() {
         LateBindAttacher.attach(
             new AgentInfo(new ModuleTransformer())
                 .addClassesToRedefine(Module.class));
     }
 
+    /**
+     * {@link ClassFileTransformer} that transforms {@link Module} <code>implIsExportedOrOpen</code> method to either
+     * always return true if the class has not yet been transformed or to transform the class back to the original bytes
+     * if the class has been transformed.
+     */
     private static class ModuleTransformer implements ClassFileTransformer {
+        /**
+         * Whether this transformer has executed yet.
+         */
         private boolean executed = false;
 
         @Override
@@ -63,6 +75,11 @@ public final class ModuleSecurity {
         }
     }
 
+    /**
+     * Get whether the {@link Module} class has been transformed to disable security or not.
+     *
+     * @return The transformed state, true if no module security, false if module security
+     */
     public static boolean isTransformed() {
         return transformed.get();
     }
