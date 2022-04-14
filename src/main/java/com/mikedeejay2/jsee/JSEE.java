@@ -21,6 +21,8 @@ import sun.misc.Unsafe;
 public final class JSEE {
     /**
      * Private constructor. Throws <code>UnsupportedOperationException</code>
+     *
+     * @since 1.0.0
      */
     private JSEE() {
         throw new UnsupportedOperationException("JSEE cannot be instantiated");
@@ -30,6 +32,7 @@ public final class JSEE {
      * Get the {@link Unsafe} object
      *
      * @return The <code>Unsafe</code>
+     * @since 1.0.0
      */
     public static Unsafe getUnsafe() {
         return UnsafeGetter.getUnsafe();

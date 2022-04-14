@@ -21,6 +21,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+/**
+ * @author Mikedeejay2
+ * @since 1.0.0
+ */
 public class LateBindAttacher {
     public static final Map<UUID, AgentInfo> INFO_MAP = new HashMap<>();
 

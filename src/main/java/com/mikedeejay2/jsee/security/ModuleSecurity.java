@@ -16,12 +16,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * <strong>This class only functions with Java 9 or higher! Java 8 does not have a reflection security system.</strong>
  *
- * @since 1.0.0
  * @author Mikedeejay2
+ * @since 1.0.0
  */
 public final class ModuleSecurity {
     /**
      * Private constructor. Throws <code>UnsupportedOperationException</code>
+     *
+     * @since 1.0.0
      */
     private ModuleSecurity() {
         throw new UnsupportedOperationException("ModuleSecurity cannot be instantiated");
@@ -29,12 +31,16 @@ public final class ModuleSecurity {
 
     /**
      * <code>AtomicBoolean</code> which holds whether the {@link Module} class has been transformed to disable security
+     *
+     * @since 1.0.0
      */
     private static final AtomicBoolean transformed = new AtomicBoolean(false);
 
     /**
      * Toggle the security function of modules. Note that this method creates and attaches a new agent to transform
      * the JVM, so its execution time should be heavily considered.
+     *
+     * @since 1.0.0
      */
     public static void toggleSecurity() {
         LateBindAttacher.attach(
@@ -46,6 +52,9 @@ public final class ModuleSecurity {
      * {@link ClassFileTransformer} that transforms {@link Module} <code>implIsExportedOrOpen</code> method to either
      * always return true if the class has not yet been transformed or to transform the class back to the original bytes
      * if the class has been transformed.
+     *
+     * @author Mikedeejay2
+     * @since 1.0.0
      */
     private static class ModuleTransformer implements ClassFileTransformer {
         /**
@@ -79,6 +88,7 @@ public final class ModuleSecurity {
      * Get whether the {@link Module} class has been transformed to disable security or not.
      *
      * @return The transformed state, true if no module security, false if module security
+     * @since 1.0.0
      */
     public static boolean isTransformed() {
         return transformed.get();
