@@ -12,7 +12,7 @@ import java.util.List;
  * @author Mikedeejay2
  * @since 1.0.0
  */
-public class AgentInfo {
+public class AgentInfo implements Cloneable {
     /**
      * The default agent main <code>Class</code> of new agents
      * @since 1.0.0
@@ -29,19 +29,19 @@ public class AgentInfo {
      * The list of {@link ClassFileTransformer}s of the agent
      * @since 1.0.0
      */
-    private final List<ClassFileTransformer> transformers;
+    private List<ClassFileTransformer> transformers;
 
     /**
      * The list of classes to be redefined by this agent
      * @since 1.0.0
      */
-    private final List<Class<?>> toRedefineClasses;
+    private List<Class<?>> toRedefineClasses;
 
     /**
      * The list of agent's classes to be included in the agent jar
      * @since 1.0.0
      */
-    private final List<Class<?>> agentClasses;
+    private List<Class<?>> agentClasses;
 
     /**
      * The agent's arguments to be passed to the <code>agentmain()</code> method
@@ -305,5 +305,18 @@ public class AgentInfo {
      */
     public static void setDefaultArgs(String defaultArgs) {
         AgentInfo.defaultArgs = defaultArgs;
+    }
+
+    @Override
+    public AgentInfo clone() {
+        try {
+            AgentInfo clone = (AgentInfo) super.clone();
+            clone.transformers = new ArrayList<>(transformers);
+            clone.toRedefineClasses = new ArrayList<>(toRedefineClasses);
+            clone.agentClasses = new ArrayList<>(agentClasses);
+            return clone;
+        } catch(CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
