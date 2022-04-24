@@ -307,6 +307,12 @@ public class AgentInfo implements Cloneable {
         AgentInfo.defaultArgs = defaultArgs;
     }
 
+    /**
+     * Clones this <code>AgentInfo</code>
+     *
+     * @return A clone of this instance
+     * @since 1.0.0
+     */
     @Override
     public AgentInfo clone() {
         try {
