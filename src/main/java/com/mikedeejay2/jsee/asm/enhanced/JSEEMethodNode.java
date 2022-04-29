@@ -9,7 +9,7 @@ import java.util.List;
 
 public class JSEEMethodNode extends MethodNode {
     public JSEEMethodNode() {
-        super();
+        this(Opcodes.ASM9);
     }
 
     public JSEEMethodNode(int api) {
