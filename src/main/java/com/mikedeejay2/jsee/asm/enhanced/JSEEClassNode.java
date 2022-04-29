@@ -3,7 +3,6 @@ package com.mikedeejay2.jsee.asm.enhanced;
 import com.mikedeejay2.jsee.asm.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class JSEEClassNode extends ClassNode {
     protected int writerOps;

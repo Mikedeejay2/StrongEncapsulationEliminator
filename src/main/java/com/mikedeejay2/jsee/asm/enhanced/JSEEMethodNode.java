@@ -1,11 +1,7 @@
 package com.mikedeejay2.jsee.asm.enhanced;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
-
-import java.util.List;
 
 public class JSEEMethodNode extends MethodNode {
     public JSEEMethodNode() {
