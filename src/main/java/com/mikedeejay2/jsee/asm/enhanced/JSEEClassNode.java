@@ -62,12 +62,20 @@ public class JSEEClassNode extends ClassNode {
         return method;
     }
 
-    public MethodNode getMethodNode(ClassNode node, String name, String signature) {
-        return ASMUtil.getMethodNode(node, name, signature);
+    public JSEEMethodNode getMethodNode(ClassNode node, String name, String signature) {
+        return (JSEEMethodNode) ASMUtil.getMethodNode(node, name, signature);
     }
 
-    public MethodNode getMethodNode(ClassNode node, String name) {
-        return ASMUtil.getMethodNode(node, name);
+    public JSEEMethodNode getMethodNode(ClassNode node, String name) {
+        return (JSEEMethodNode) ASMUtil.getMethodNode(node, name);
+    }
+
+    public JSEEFieldNode getFieldNode(ClassNode node, String name, String signature) {
+        return (JSEEFieldNode) ASMUtil.getFieldNode(node, name, signature);
+    }
+
+    public JSEEFieldNode getFieldNode(ClassNode node, String name) {
+        return (JSEEFieldNode) ASMUtil.getFieldNode(node, name);
     }
 
     public ClassReader getReader() {
