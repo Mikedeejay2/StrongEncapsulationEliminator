@@ -1,6 +1,5 @@
 package com.mikedeejay2.jsee.security;
 
-import com.mikedeejay2.jsee.asm.ASMUtil;
 import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
 import com.mikedeejay2.jsee.asm.enhanced.JSEEClassNode;
@@ -44,6 +43,7 @@ public final class ModuleSecurity {
      * @since 1.0.0
      */
     public static void toggleSecurity() {
+        checkModulesThrowElse();
         LateBindAttacher.attach(
             new AgentInfo(new ModuleTransformer())
                 .addClassesToRedefine(Module.class));
@@ -93,5 +93,20 @@ public final class ModuleSecurity {
      */
     public static boolean isTransformed() {
         return transformed.get();
+    }
+
+    public static boolean hasModules() {
+        try {
+            Class<?> clazz = Class.forName("java.lang.Module");
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static void checkModulesThrowElse() {
+        if(!hasModules()) {
+            throw new UnsupportedOperationException("Attempted to disable security of Java modules but JVM does not have modules.");
+        }
     }
 }
