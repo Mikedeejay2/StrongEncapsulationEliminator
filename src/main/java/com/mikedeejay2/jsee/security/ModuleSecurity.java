@@ -3,6 +3,7 @@ package com.mikedeejay2.jsee.security;
 import com.mikedeejay2.jsee.asm.ASMUtil;
 import com.mikedeejay2.jsee.asm.AgentInfo;
 import com.mikedeejay2.jsee.asm.LateBindAttacher;
+import com.mikedeejay2.jsee.asm.enhanced.JSEEClassNode;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -71,16 +72,16 @@ public final class ModuleSecurity {
                 return classFileBuffer; // return original bytes to remove added instructions
             }
 
-            return ASMUtil.operateNode(classFileBuffer, classNode -> {
-                MethodNode methodNode = ASMUtil.getMethodNode(classNode, "implIsExportedOrOpen");
-                InsnList instructions = methodNode.instructions;
-                transformed.compareAndSet(false, true);
-                InsnList list = new InsnList();
-                list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
-                list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
-                instructions.insert(list); // insert list to start of stack
-                executed = true;
-            });
+            JSEEClassNode classNode = new JSEEClassNode(classFileBuffer);
+            MethodNode methodNode = classNode.getMethodNode("implIsExportedOrOpen");
+            InsnList instructions = methodNode.instructions;
+            transformed.compareAndSet(false, true);
+            InsnList list = new InsnList();
+            list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
+            list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
+            instructions.insert(list); // insert list to start of stack
+            executed = true;
+            return classNode.toByteArray();
         }
     }
 

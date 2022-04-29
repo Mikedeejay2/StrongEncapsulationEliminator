@@ -6,16 +6,15 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public class JSEEClassNode extends ClassNode {
-    protected ClassReader reader;
-    protected ClassWriter writer;
+    protected int writerOps;
+    protected int readerOps;
 
     public JSEEClassNode(int api, byte[] classFileBuffer, int writerOps, int readerOps) {
         super(api);
-        this.reader = new ClassReader(classFileBuffer);
-        reader.accept(this, readerOps);
+        this.writerOps = writerOps;
+        this.readerOps = readerOps;
+        read(classFileBuffer);
 
-        this.writer = new ClassWriter(writerOps);
-        this.accept(writer);
     }
 
     public JSEEClassNode(int api, byte[] classFileBuffer, int writerOps) {
@@ -62,31 +61,46 @@ public class JSEEClassNode extends ClassNode {
         return method;
     }
 
-    public JSEEMethodNode getMethodNode(ClassNode node, String name, String signature) {
-        return (JSEEMethodNode) ASMUtil.getMethodNode(node, name, signature);
+    public JSEEMethodNode getMethodNode(String name, String signature) {
+        return (JSEEMethodNode) ASMUtil.getMethodNode(this, name, signature);
     }
 
-    public JSEEMethodNode getMethodNode(ClassNode node, String name) {
-        return (JSEEMethodNode) ASMUtil.getMethodNode(node, name);
+    public JSEEMethodNode getMethodNode(String name) {
+        return (JSEEMethodNode) ASMUtil.getMethodNode(this, name);
     }
 
-    public JSEEFieldNode getFieldNode(ClassNode node, String name, String signature) {
-        return (JSEEFieldNode) ASMUtil.getFieldNode(node, name, signature);
+    public JSEEFieldNode getFieldNode(String name, String signature) {
+        return (JSEEFieldNode) ASMUtil.getFieldNode(this, name, signature);
     }
 
-    public JSEEFieldNode getFieldNode(ClassNode node, String name) {
-        return (JSEEFieldNode) ASMUtil.getFieldNode(node, name);
+    public JSEEFieldNode getFieldNode(String name) {
+        return (JSEEFieldNode) ASMUtil.getFieldNode(this, name);
     }
 
-    public ClassReader getReader() {
-        return reader;
-    }
-
-    public ClassWriter getWriter() {
-        return writer;
+    protected void read(byte[] classFileBuffer) {
+        ClassReader reader = new ClassReader(classFileBuffer);
+        reader.accept(this, readerOps);
     }
 
     public byte[] toByteArray() {
+        ClassWriter writer = new ClassWriter(writerOps);
+        this.accept(writer);
         return writer.toByteArray();
+    }
+
+    public int getWriterOps() {
+        return writerOps;
+    }
+
+    public void setWriterOps(int writerOps) {
+        this.writerOps = writerOps;
+    }
+
+    public int getReaderOps() {
+        return readerOps;
+    }
+
+    public void setReaderOps(int readerOps) {
+        this.readerOps = readerOps;
     }
 }
