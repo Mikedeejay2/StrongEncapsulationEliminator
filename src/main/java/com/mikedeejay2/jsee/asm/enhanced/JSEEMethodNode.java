@@ -3,6 +3,10 @@ package com.mikedeejay2.jsee.asm.enhanced;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * @author Mikedeejay2
+ * @since 1.0.0
+ */
 public class JSEEMethodNode extends MethodNode {
     public JSEEMethodNode() {
         this(Opcodes.ASM9);

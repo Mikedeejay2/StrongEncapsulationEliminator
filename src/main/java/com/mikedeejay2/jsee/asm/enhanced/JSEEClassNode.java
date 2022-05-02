@@ -4,6 +4,10 @@ import com.mikedeejay2.jsee.asm.ASMUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 
+/**
+ * @author Mikedeejay2
+ * @since 1.0.0
+ */
 public class JSEEClassNode extends ClassNode {
     protected int writerOps;
     protected int readerOps;
