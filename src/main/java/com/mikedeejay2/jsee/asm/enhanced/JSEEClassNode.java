@@ -9,7 +9,15 @@ import org.objectweb.asm.tree.ClassNode;
  * @since 1.0.0
  */
 public class JSEEClassNode extends ClassNode {
+
+    /**
+     * The writer operands of the internal writer
+     */
     protected int writerOps;
+
+    /**
+     * The reader operands of the internal reader
+     */
     protected int readerOps;
 
     public JSEEClassNode(int api, byte[] classFileBuffer, int writerOps, int readerOps) {
