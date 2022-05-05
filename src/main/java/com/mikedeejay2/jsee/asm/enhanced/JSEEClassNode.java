@@ -20,6 +20,14 @@ public class JSEEClassNode extends ClassNode {
      */
     protected int readerOps;
 
+    /**
+     * Construct a new <code>JSEEClassNode</code>
+     *
+     * @param api The API level of ASM
+     * @param classFileBuffer The class bytes
+     * @param writerOps The writer operands of the internal writer
+     * @param readerOps The reader operands of the internal reader
+     */
     public JSEEClassNode(int api, byte[] classFileBuffer, int writerOps, int readerOps) {
         super(api);
         this.writerOps = writerOps;
@@ -28,22 +36,52 @@ public class JSEEClassNode extends ClassNode {
 
     }
 
+    /**
+     * Construct a new <code>JSEEClassNode</code>
+     *
+     * @param api The API level of ASM
+     * @param classFileBuffer The class bytes
+     * @param writerOps The writer operands of the internal writer
+     */
     public JSEEClassNode(int api, byte[] classFileBuffer, int writerOps) {
         this(api, classFileBuffer, writerOps, 0);
     }
 
+    /**
+     * Construct a new <code>JSEEClassNode</code>
+     *
+     * @param api The API level of ASM
+     * @param classFileBuffer The class bytes
+     */
     public JSEEClassNode(int api, byte[] classFileBuffer) {
         this(api, classFileBuffer, 0, 0);
     }
 
-    public JSEEClassNode(byte[] classFileBuffer, int writerOps, int readerOps) {
+    /**
+     * Construct a new <code>JSEEClassNode</code>
+     *
+     * @param classFileBuffer The class bytes
+     * @param writerOps The writer operands of the internal writer
+     * @param readerOps The reader operands of the internal reader
+     */    public JSEEClassNode(byte[] classFileBuffer, int writerOps, int readerOps) {
         this(Opcodes.ASM9, classFileBuffer, writerOps, readerOps);
     }
 
+    /**
+     * Construct a new <code>JSEEClassNode</code>
+     *
+     * @param classFileBuffer The class bytes
+     * @param writerOps The writer operands of the internal writer
+     */
     public JSEEClassNode(byte[] classFileBuffer, int writerOps) {
         this(Opcodes.ASM9, classFileBuffer, writerOps, 0);
     }
 
+    /**
+     * Construct a new <code>JSEEClassNode</code>
+     *
+     * @param classFileBuffer The class bytes
+     */
     public JSEEClassNode(byte[] classFileBuffer) {
         this(Opcodes.ASM9, classFileBuffer, 0, 0);
     }
