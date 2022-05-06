@@ -110,18 +110,44 @@ public class JSEEClassNode extends ClassNode {
         return method;
     }
 
+    /**
+     * Get a method node contained within this class
+     *
+     * @param name The name of the method
+     * @param signature The method's signature, only needed if multiple methods have the same name
+     * @return The method node, null if not found
+     */
     public JSEEMethodNode getMethodNode(String name, String signature) {
         return (JSEEMethodNode) ASMUtil.getMethodNode(this, name, signature);
     }
 
+    /**
+     * Get a method node contained within this class
+     *
+     * @param name The name of the method
+     * @return The method node, null if not found
+     */
     public JSEEMethodNode getMethodNode(String name) {
         return (JSEEMethodNode) ASMUtil.getMethodNode(this, name);
     }
 
+    /**
+     * Get a field node contained within this class
+     *
+     * @param name The name of the field
+     * @param signature The field's signature, only needed to ensure whether data types are as expected
+     * @return The method node, null if not found
+     */
     public JSEEFieldNode getFieldNode(String name, String signature) {
         return (JSEEFieldNode) ASMUtil.getFieldNode(this, name, signature);
     }
 
+    /**
+     * Get a field node contained within this class
+     *
+     * @param name The name of the field
+     * @return The method node, null if not found
+     */
     public JSEEFieldNode getFieldNode(String name) {
         return (JSEEFieldNode) ASMUtil.getFieldNode(this, name);
     }
