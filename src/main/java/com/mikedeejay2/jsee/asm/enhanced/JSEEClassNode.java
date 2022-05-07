@@ -152,29 +152,59 @@ public class JSEEClassNode extends ClassNode {
         return (JSEEFieldNode) ASMUtil.getFieldNode(this, name);
     }
 
+    /**
+     * Read the input class bytes into this node
+     *
+     * @param classFileBuffer The class bytes to read
+     */
     protected void read(byte[] classFileBuffer) {
         ClassReader reader = new ClassReader(classFileBuffer);
         reader.accept(this, readerOps);
     }
 
+    /**
+     * Get the class bytes of this class node
+     *
+     * @return The generated class bytes
+     */
     public byte[] toByteArray() {
         ClassWriter writer = new ClassWriter(writerOps);
         this.accept(writer);
         return writer.toByteArray();
     }
 
+    /**
+     * Get the writer operands of the internal writer
+     *
+     * @return The writer operands
+     */
     public int getWriterOps() {
         return writerOps;
     }
 
+    /**
+     * Set the writer operands of the internal writer
+     *
+     * @param writerOps The new writer operands
+     */
     public void setWriterOps(int writerOps) {
         this.writerOps = writerOps;
     }
 
+    /**
+     * Get the reader operands of the internal reader
+     *
+     * @return The reader operands
+     */
     public int getReaderOps() {
         return readerOps;
     }
 
+    /**
+     * Set the reader operands of the internal reader
+     *
+     * @param readerOps The new reader operands
+     */
     public void setReaderOps(int readerOps) {
         this.readerOps = readerOps;
     }
