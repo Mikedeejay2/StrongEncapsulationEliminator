@@ -5,6 +5,8 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 
 /**
+ * A custom class node to add functionality and helper methods
+ *
  * @author Mikedeejay2
  * @since 1.0.0
  */
