@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.MethodNode;
 public class JSEEMethodNode extends MethodNode {
     /**
      * Construct a new <code>JSEEMethodNode</code>
+     * @since 1.0.0
      */
     public JSEEMethodNode() {
         this(Opcodes.ASM9);
@@ -21,6 +22,7 @@ public class JSEEMethodNode extends MethodNode {
      * Construct a new <code>JSEEMethodNode</code>
      *
      * @param api The API level of ASM
+     * @since 1.0.0
      */
     public JSEEMethodNode(int api) {
         super(api);
@@ -35,6 +37,7 @@ public class JSEEMethodNode extends MethodNode {
      * @param descriptor The descriptor of the method
      * @param signature The signature of the method
      * @param exceptions The exceptions that the method throws
+     * @since 1.0.0
      */
     public JSEEMethodNode(int api, int access, String name, String descriptor, String signature, String[] exceptions) {
         super(api, access, name, descriptor, signature, exceptions);
@@ -48,6 +51,7 @@ public class JSEEMethodNode extends MethodNode {
      * @param descriptor The descriptor of the method
      * @param signature The signature of the method
      * @param exceptions The exceptions that the method throws
+     * @since 1.0.0
      */
     public JSEEMethodNode(int access, String name, String descriptor, String signature, String[] exceptions) {
         this(Opcodes.ASM9, access, name, descriptor, signature, exceptions);

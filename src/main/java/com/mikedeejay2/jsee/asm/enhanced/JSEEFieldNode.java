@@ -19,6 +19,7 @@ public class JSEEFieldNode extends FieldNode {
      * @param descriptor The descriptor of the field
      * @param signature The signature of the field
      * @param value The value of the field.
+     * @since 1.0.0
      */
     public JSEEFieldNode(int api, int access, String name, String descriptor, String signature, Object value) {
         super(api, access, name, descriptor, signature, value);
@@ -33,6 +34,7 @@ public class JSEEFieldNode extends FieldNode {
      * @param descriptor The descriptor of the field
      * @param signature The signature of the field
      * @param value The value of the field.
+     * @since 1.0.0
      */
     public JSEEFieldNode(int access, String name, String descriptor, String signature, Object value) {
         this(Opcodes.ASM9, access, name, descriptor, signature, value);
