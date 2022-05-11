@@ -9,8 +9,5 @@
         <module name="jsee" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="StrongEncapsulationEliminator" target="9" />
-    </bytecodeTargetLevel>
   </component>
 </project>

@@ -38,10 +38,23 @@ public final class JSEE {
         return UnsafeGetter.getUnsafe();
     }
 
+    /**
+     * Attach an agent to this JVM
+     *
+     * @param info The {@link AgentInfo} used to create the agent. It includes all information required.
+     * @see LateBindAttacher#attach(AgentInfo)
+     * @since 1.0.0
+     */
     public static void attachAgent(AgentInfo info) {
         LateBindAttacher.attach(info);
     }
 
+    /**
+     * Toggle the security of Java 9+ modules.
+     *
+     * @see ModuleSecurity#toggleSecurity()
+     * @since 1.0.0
+     */
     public static void toggleModuleSecurity() {
         ModuleSecurity.toggleSecurity();
     }
