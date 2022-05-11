@@ -53,6 +53,7 @@ public final class ModuleSecurity {
     }
 
     private static void transformModule(JSEEClassNode classNode) {
+        if(transformed.compareAndSet(true, false)) return;
         MethodNode methodNode = classNode.getMethodNode("implIsExportedOrOpen");
         InsnList instructions = methodNode.instructions;
         transformed.compareAndSet(false, true);
@@ -60,42 +61,6 @@ public final class ModuleSecurity {
         list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
         list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
         instructions.insert(list); // insert list to start of stack
-    }
-
-    /**
-     * {@link ClassFileTransformer} that transforms {@link Module} <code>implIsExportedOrOpen</code> method to either
-     * always return true if the class has not yet been transformed or to transform the class back to the original bytes
-     * if the class has been transformed.
-     *
-     * @author Mikedeejay2
-     * @since 1.0.0
-     */
-    private static class ModuleTransformer implements ClassFileTransformer {
-        /**
-         * Whether this transformer has executed yet.
-         */
-        private boolean executed = false;
-
-        @Override
-        public byte[] transform(
-            ClassLoader loader, String className, Class<?> classBeingRedefined,
-            ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-            if(!className.equals("java/lang/Module") || executed) return classFileBuffer;
-            if(transformed.compareAndSet(true, false)) {
-                return classFileBuffer; // return original bytes to remove added instructions
-            }
-
-            JSEEClassNode classNode = new JSEEClassNode(classFileBuffer);
-            MethodNode methodNode = classNode.getMethodNode("implIsExportedOrOpen");
-            InsnList instructions = methodNode.instructions;
-            transformed.compareAndSet(false, true);
-            InsnList list = new InsnList();
-            list.add(new InsnNode(Opcodes.ICONST_1)); // push boolean true onto stack
-            list.add(new InsnNode(Opcodes.IRETURN)); // push return int onto stack (return true boolean)
-            instructions.insert(list); // insert list to start of stack
-            executed = true;
-            return classNode.toByteArray();
-        }
     }
 
     /**
