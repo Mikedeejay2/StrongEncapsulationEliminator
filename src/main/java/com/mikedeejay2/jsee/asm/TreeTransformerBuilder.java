@@ -70,8 +70,8 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
     /**
      * Add a class executor to be executed upon a specified class.
      *
-     * @param clazz The class that the executor will execute on
-     * @param consumer  The consumer to be used for execution
+     * @param clazz    The class that the executor will execute on
+     * @param consumer The consumer to be used for execution
      * @return The <code>TreeTransformerBuilder</code>
      * @since 1.0.0
      */
@@ -100,7 +100,7 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
     /**
      * Remove a class executor to be executed upon a specified class.
      *
-     * @param clazz The class that the executor will be removed from
+     * @param clazz    The class that the executor will be removed from
      * @param consumer The consumer to remove
      * @return The <code>TreeTransformerBuilder</code>
      * @since 1.0.0
