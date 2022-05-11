@@ -1,5 +1,7 @@
 package com.mikedeejay2.jsee.asm;
 
+import com.mikedeejay2.jsee.JSEE;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,16 +16,10 @@ import java.util.List;
  */
 public class AgentInfo implements Cloneable {
     /**
-     * The default agent main <code>Class</code> of new agents
-     * @since 1.0.0
+     * The default <code>AgentInfo</code>. All information from this agent is copied into all new agents. This is useful
+     * for globally changing the information of new agents.
      */
-    private static Class<?> defaultAgent = JSEEAgent.class;
-
-    /**
-     * The default arguments passed to agent main
-     * @since 1.0.0
-     */
-    private static String defaultArgs = "";
+    public static final AgentInfo DEFAULT = new AgentInfo(JSEEAgent.class);
 
     /**
      * The list of {@link ClassFileTransformer}s of the agent
@@ -72,16 +68,15 @@ public class AgentInfo implements Cloneable {
      * @since 1.0.0
      */
     public AgentInfo(ClassFileTransformer transformer) {
-        this.transformers = new ArrayList<>();
-        this.toRedefineClasses = new ArrayList<>();
-        this.agentClasses = new ArrayList<>();
-        this.agentClasses.add(defaultAgent);
+        this.transformers = new ArrayList<>(DEFAULT.transformers);
+        this.toRedefineClasses = new ArrayList<>(DEFAULT.toRedefineClasses);
+        this.agentClasses = new ArrayList<>(DEFAULT.agentClasses);
         this.JVMPid = LateBindAttacher.getPidFromRuntimeBean();
-        this.agentMain = defaultAgent;
-        this.additionalArgs = defaultArgs;
+        this.agentMain = DEFAULT.agentMain;
+        this.additionalArgs = DEFAULT.additionalArgs;
         if(transformer != null) {
-            transformers.add(transformer);
-            agentClasses.add(transformer.getClass());
+            addTransformers(transformer);
+            addAgentClasses(transformer.getClass());
         }
     }
 
@@ -95,7 +90,17 @@ public class AgentInfo implements Cloneable {
      * @since 1.0.0
      */
     public AgentInfo() {
-        this(null);
+        this((ClassFileTransformer) null);
+    }
+
+    private AgentInfo(Class<?> agentMain) {
+        this.transformers = new ArrayList<>();
+        this.toRedefineClasses = new ArrayList<>();
+        this.agentClasses = new ArrayList<>();
+        this.agentClasses.add(agentMain);
+        this.JVMPid = LateBindAttacher.getPidFromRuntimeBean();
+        this.agentMain = agentMain;
+        this.additionalArgs = "";
     }
 
     /**
@@ -221,10 +226,12 @@ public class AgentInfo implements Cloneable {
      * JVM.
      *
      * @param JVMPid The new Java Virtual Machine process ID
+     * @return This <code>AgentInfo</code>
      * @since 1.0.0
      */
-    public void setJVMPid(String JVMPid) {
+    public AgentInfo setJVMPid(String JVMPid) {
         this.JVMPid = JVMPid;
+        return this;
     }
 
     /**
@@ -241,10 +248,12 @@ public class AgentInfo implements Cloneable {
      * Set the <code>Class</code> that contains the <code>agentmain()</code> method
      *
      * @param agentMain The new <code>agentmain()</code> class
+     * @return This <code>AgentInfo</code>
      * @since 1.0.0
      */
-    public void setAgentMain(Class<?> agentMain) {
+    public AgentInfo setAgentMain(Class<?> agentMain) {
         this.agentMain = agentMain;
+        return this;
     }
 
     /**
@@ -265,46 +274,6 @@ public class AgentInfo implements Cloneable {
      */
     public void setAdditionalArgs(String additionalArgs) {
         this.additionalArgs = additionalArgs;
-    }
-
-    /**
-     * Get the default agent main <code>Class</code> of new agents
-     *
-     * @return The default agent main <code>Class</code> of new agents
-     * @since 1.0.0
-     */
-    public static Class<?> getDefaultAgent() {
-        return defaultAgent;
-    }
-
-    /**
-     * Set the default agent main <code>Class</code> of new agents
-     *
-     * @param defaultAgent The new agent class
-     * @since 1.0.0
-     */
-    public static void setDefaultAgent(Class<?> defaultAgent) {
-        AgentInfo.defaultAgent = defaultAgent;
-    }
-
-    /**
-     * Get the default arguments passed to agent main
-     *
-     * @return the default arguments
-     * @since 1.0.0
-     */
-    public static String getDefaultArgs() {
-        return defaultArgs;
-    }
-
-    /**
-     * Set the default arguments passed to agent main
-     *
-     * @param defaultArgs The new default arguments
-     * @since 1.0.0
-     */
-    public static void setDefaultArgs(String defaultArgs) {
-        AgentInfo.defaultArgs = defaultArgs;
     }
 
     /**
