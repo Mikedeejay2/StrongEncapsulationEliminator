@@ -4,6 +4,9 @@ import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.UUID;
 
 /**
@@ -33,6 +36,33 @@ public final class JSEEAgent {
      * @since 1.0.0
      */
     public static void agentmain(String args, Instrumentation instrumentation) {
+        // Find the loading ClassLoader, given that JSEE was loaded with a custom classloader
+        ClassLoader classLoader = null;
+        final String jseeClass = "com.mikedeejay2.jsee.JSEE";
+        for(Class<?> clazz : instrumentation.getAllLoadedClasses()) {
+            if(clazz.getName().equals(jseeClass)) {
+                classLoader = clazz.getClassLoader();
+                break;
+            }
+        }
+        if(classLoader == null) {
+            System.err.println("Unable to locate ClassLoader associated with JSEE.");
+            return;
+        }
+
+        // Invoke the agentmain_ method in the original ClassLoader
+        try {
+            Class<?> clazz = Class.forName(JSEEAgent.class.getName(), true, classLoader);
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            MethodType methodType = MethodType.methodType(void.class, String.class, Instrumentation.class);
+            MethodHandle handle = lookup.findStatic(clazz, "agentmain_", methodType);
+            handle.invoke(args, instrumentation);
+        } catch(Throwable e) {
+            System.err.println("Unable to invoke JSEE agentmain internal method");
+        }
+    }
+
+    public static void agentmain_(String args, Instrumentation instrumentation) {
         // Obtain AgentInfo
         UUID uuid = UUID.fromString(args.split(" ")[0]);
         AgentInfo info = LateBindAttacher.INFO_MAP.remove(uuid);
