@@ -5,11 +5,8 @@ import com.mikedeejay2.jsee.asm.enhanced.JSEEClassNode;
 import org.objectweb.asm.Type;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -65,7 +62,25 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
     public TreeTransformerBuilder addExecutor(String className, Consumer<JSEEClassNode> consumer) {
         Objects.requireNonNull(className, "Passed null Class name to TransformerBuilder");
         Objects.requireNonNull(consumer, "Passed null consumer to TransformerBuilder");
-        classExecutors.put(className, new ClassExecutor(consumer));
+        classExecutors.putIfAbsent(className, new ClassExecutor());
+        classExecutors.get(className).addExecutor(consumer);
+        return this;
+    }
+
+    /**
+     * Remove a class executor to be executed upon a specified class name.
+     *
+     * @param className The name of the class that the executor will be removed from
+     * @param consumer  The consumer to remove
+     * @return The <code>TreeTransformerBuilder</code>
+     * @since 1.0.0
+     */
+    public TreeTransformerBuilder removeExecutor(String className, Consumer<JSEEClassNode> consumer) {
+        Objects.requireNonNull(className, "Passed null Class name to TransformerBuilder");
+        Objects.requireNonNull(consumer, "Passed null consumer to TransformerBuilder");
+        ClassExecutor executor = classExecutors.get(className);
+        Objects.requireNonNull(executor, "Attempted to remove executor of class that has no executors added");
+        executor.removeExecutor(consumer);
         return this;
     }
 
@@ -97,23 +112,58 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
         protected boolean executed;
 
         /**
-         * The <code>Consumer</code> used to execute the bytecode modification
+         * The <code>List</code> of <code>Consumers</code> used to execute the bytecode modification
          *
          * @since 1.0.0
          */
-        private final Consumer<JSEEClassNode> consumer;
+        private final List<Consumer<JSEEClassNode>> consumers;
 
         /**
          * Construct a new <code>ClassExecutor</code>
          *
-         * @param consumer The <code>Consumer</code> to use for execution
          * @since 1.0.0
          */
-        public ClassExecutor(Consumer<JSEEClassNode> consumer) {
+        public ClassExecutor() {
             this.executed = false;
-            this.consumer = consumer;
+            this.consumers = new ArrayList<>();
         }
 
+        /**
+         * Add a <code>Consumer</code> executor to this object
+         *
+         * @param executor The <code>Consumer</code> to add to this object
+         * @since 1.0.0
+         */
+        public void addExecutor(Consumer<JSEEClassNode> executor) {
+            Objects.requireNonNull(executor, "Attempted to add a TreeTransformerBuilder executor that was null");
+            if(containsExexutor(executor))
+                throw new UnsupportedOperationException("Attempted to add a TreeTransformerBuilder executor that was already added");
+            consumers.add(executor);
+        }
+
+        /**
+         * Remove a <code>Consumer</code> executor from this object
+         *
+         * @param executor The <code>Consumer</code> to remove from this object
+         * @since 1.0.0
+         */
+        public void removeExecutor(Consumer<JSEEClassNode> executor) {
+            Objects.requireNonNull(executor, "Attempted to remove a TreeTransformerBuilder executor that was null");
+            if(!containsExexutor(executor))
+                throw new UnsupportedOperationException("Attempted to remove a TreeTransformerBuilder executor that does not exist in the List");
+            consumers.remove(executor);
+        }
+
+        /**
+         * See whether this <code>ClassExecutor</code> contains a specified <code>Consumer</code> for execution
+         *
+         * @param executor The <code>Consumer</code> to check for
+         * @return Whether this <code>ClassExecutor</code> contains the specified <code>Consumer</code>
+         * @since 1.0.0
+         */
+        public boolean containsExexutor(Consumer<JSEEClassNode> executor) {
+            return consumers.contains(executor);
+        }
         /**
          * Execute upon a given {@link JSEEClassNode}
          *
@@ -122,7 +172,9 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
          */
         public void execute(JSEEClassNode node) {
             if(executed) return;
-            consumer.accept(node);
+            for(Consumer<JSEEClassNode> consumer : consumers) {
+                consumer.accept(node);
+            }
             executed = true;
         }
     }
