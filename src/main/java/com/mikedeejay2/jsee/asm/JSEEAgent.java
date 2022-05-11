@@ -62,6 +62,18 @@ public final class JSEEAgent {
         }
     }
 
+    /**
+     * The internal <code>agentmain</code> method. Unlike the original <code>agentmain</code>, this method will be run
+     * inside the original JSEE <code>ClassLoader</code>. This is important because given that JSEE was loaded using a
+     * custom class loader such as a <code>URLClassLoader</code>, this agent must be able to retrieve information from
+     * other currently loaded classes in the class loader. The only way to do this is to call this method from the
+     * system class loader to re-enter the correct class loader.
+     *
+     * @param args The arguments passed to this agent, by default, it's the UUID String of the {@link AgentInfo} associated with
+     *             this agent
+     * @param instrumentation The {@link Instrumentation} to redefine classes
+     * @since 1.0.0
+     */
     public static void agentmain_(String args, Instrumentation instrumentation) {
         // Obtain AgentInfo
         UUID uuid = UUID.fromString(args.split(" ")[0]);
