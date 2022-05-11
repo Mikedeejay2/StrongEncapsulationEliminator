@@ -68,6 +68,19 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
     }
 
     /**
+     * Add a class executor to be executed upon a specified class.
+     *
+     * @param clazz The class that the executor will execute on
+     * @param consumer  The consumer to be used for execution
+     * @return The <code>TreeTransformerBuilder</code>
+     * @since 1.0.0
+     */
+    public TreeTransformerBuilder addExecutor(Class<?> clazz, Consumer<JSEEClassNode> consumer) {
+        Objects.requireNonNull(clazz, "Passed null Class to TransformerBuilder");
+        return this.addExecutor(Type.getInternalName(clazz), consumer);
+    }
+
+    /**
      * Remove a class executor to be executed upon a specified class name.
      *
      * @param className The name of the class that the executor will be removed from
@@ -85,14 +98,14 @@ public class TreeTransformerBuilder implements ClassFileTransformer {
     }
 
     /**
-     * Add a class executor to be executed upon a specified class name.
+     * Remove a class executor to be executed upon a specified class.
      *
-     * @param clazz The class that the executor will execute on
-     * @param consumer  The consumer to be used for execution
+     * @param clazz The class that the executor will be removed from
+     * @param consumer The consumer to remove
      * @return The <code>TreeTransformerBuilder</code>
      * @since 1.0.0
      */
-    public TreeTransformerBuilder addExecutor(Class<?> clazz, Consumer<JSEEClassNode> consumer) {
+    public TreeTransformerBuilder removeExecutor(Class<?> clazz, Consumer<JSEEClassNode> consumer) {
         Objects.requireNonNull(clazz, "Passed null Class to TransformerBuilder");
         return this.addExecutor(Type.getInternalName(clazz), consumer);
     }
