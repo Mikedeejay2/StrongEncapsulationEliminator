@@ -1,7 +1,5 @@
 package com.mikedeejay2.jsee.asm;
 
-import com.mikedeejay2.jsee.JSEE;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.Arrays;

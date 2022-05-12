@@ -8,7 +8,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,10 +45,10 @@ public final class ModuleSecurity {
     public static void toggleSecurity() {
         checkModulesThrowElse();
         ClassFileTransformer transformer = new TreeTransformerBuilder()
-            .addExecutor(Module.class, ModuleSecurity::transformModule);
+            .addExecutor("java/lang/Module", ModuleSecurity::transformModule);
         LateBindAttacher.attach(
             new AgentInfo(transformer)
-                .addClassesToRedefine(Module.class));
+                .addClassesToRedefine("java.lang.Module"));
     }
 
     private static void transformModule(JSEEClassNode classNode) {
@@ -64,7 +63,7 @@ public final class ModuleSecurity {
     }
 
     /**
-     * Get whether the {@link Module} class has been transformed to disable security or not.
+     * Get whether the <code>Module</code> class has been transformed to disable security or not.
      *
      * @return The transformed state, true if no module security, false if module security
      * @since 1.0.0
